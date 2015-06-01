@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <color name="primaryColor">#37474F</color>
+    <color name="primaryDark">#d500</color>
+
+    <color name="accentColor">#ffc400</color>
+
+
+    <color name="tabsScrollColor">#8a140e</color>
+
+    <color name="colorOrange">#e65100</color>
+    <color name="navBg">#607D8B</color>
+</resources>
