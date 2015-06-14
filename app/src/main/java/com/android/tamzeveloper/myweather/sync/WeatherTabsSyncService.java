@@ -7,16 +7,16 @@ import android.os.IBinder;
 /**
  * Created by tahmina on 15-04-23.
  */
-public class MyWeatherSyncService extends Service {
+public class WeatherTabsSyncService extends Service {
     private static final Object sSyncAdapterLock = new Object();
-    private static MyWeatherSyncAdapter sSyncAdapter = null;
+    private static WeatherTabsSyncAdapter sSyncAdapter = null;
 
     @Override
     public void onCreate() {
        // Log.d("TAMZ", "onCreate - SyncService");
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
-                sSyncAdapter = new MyWeatherSyncAdapter(getApplicationContext(), true);
+                sSyncAdapter = new WeatherTabsSyncAdapter(getApplicationContext(), true);
             }
         }
     }

@@ -65,7 +65,7 @@
 
         <!-- The SyncAdapter service -->
         <service
-            android:name=".sync.MyWeatherSyncService"
+            android:name=".sync.WeatherTabsSyncService"
             android:exported="true"
             >
             <intent-filter>

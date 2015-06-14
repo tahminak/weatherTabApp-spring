@@ -11,7 +11,9 @@ import android.widget.TextView;
 
 import com.android.tamzeveloper.myweather.data.WeatherContract;
 
-;
+/**
+ * Created by Tahmina Khan
+ */
 
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
@@ -100,19 +102,14 @@ public class ForecastAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        // TextView tv = (TextView)view.findViewById(R.id.list_item_forecast_textview);
+
         viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
 
-        //Log.d(LOG_TAG, CLASS_TAG + cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID));
-
-
-        //viewHolder.descriptionView.setText(convertCursorRowToUXFormat(cursor));
 
         //Setup Date
         long date=cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         viewHolder.dateView.setText(Utility.getFriendlyDayString(context, date));
 
-        //viewHolder.dateView.setText(Utility.getFriendlyDayString(context, date));
 
 
         String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
@@ -130,8 +127,6 @@ public class ForecastAdapter extends CursorAdapter {
         viewHolder.lowTempView.setText(Utility.formatTemperature(context, low));
 
 
-
-        //Log.d(LOG_TAG,CLASS_TAG+"Friendly Date :"+Utility.getFriendlyDayString(context, date));
     }
 
     @Override

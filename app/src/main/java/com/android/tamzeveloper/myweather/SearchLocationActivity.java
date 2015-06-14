@@ -1,7 +1,9 @@
 package com.android.tamzeveloper.myweather;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.tamzeveloper.myweather.data.UniqueCity;
 import com.survivingwithandroid.weather.lib.WeatherClient;
 import com.survivingwithandroid.weather.lib.exception.LocationProviderNotFoundException;
 import com.survivingwithandroid.weather.lib.exception.WeatherLibException;
@@ -29,8 +32,10 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Created by tahmina on 15-05-08.
@@ -87,27 +92,68 @@ public class SearchLocationActivity extends Activity {
                                     long id) {
                 SharedPreferences sharedPref = getSharedPreferences("locations", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
+
+                Set<UniqueCity> uniqueCities = new HashSet<UniqueCity>();
+
                 City city = (City) parent.getItemAtPosition(pos);
 
-                String cities= sharedPref.getString("cities",null);
-                JSONArray cityArray=new JSONArray();
+                String cities = sharedPref.getString("cities", null);
+                JSONArray cityArray = new JSONArray();
 
-                if(cities!=null){
+                if (cities != null) {
                     try {
-                        cityArray=new JSONArray(cities);
+                        cityArray = new JSONArray(cities);
+
+                        for (int i = 0; i < cityArray.length(); i++) {
+                            JSONObject jsonObject = cityArray.getJSONObject(i);
+
+
+                            UniqueCity dummyCity=new UniqueCity();
+
+
+                            dummyCity.setId(jsonObject.getString("cityid"));
+                            dummyCity.setName(jsonObject.getString("cityName"));
+                            dummyCity.setCountry(jsonObject.getString("country"));
+
+                                uniqueCities.add(dummyCity);
+
+
+                        }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
 
+                for(City c:uniqueCities){
+
+                    Log.d("TAMZ",c.getName());
+                }
+
+                UniqueCity selectedCity=new UniqueCity();
+                selectedCity.setId(city.getId());
+                selectedCity.setName(city.getName());
+                selectedCity.setCountry(city.getCountry());
 
 
-                JSONObject cityJson=new JSONObject();
+                boolean isNewCity=uniqueCities.add(selectedCity);
+
+                Log.d("TAMZ","Is existing City : "+isNewCity);
+
+                if(isNewCity) {
+
+                    for(City c:uniqueCities){
+
+                        Log.d("TAMZ",c.getName());
+                    }
+
+
+                    JSONObject cityJson = new JSONObject();
                 try {
                     cityJson.put("cityid", city.getId());
                     cityJson.put("cityName", city.getName());
                     //Get Long Country Name
-                    Locale loc = new Locale("",city.getCountry());
+                    Locale loc = new Locale("", city.getCountry());
                     cityJson.put("country", loc.getDisplayCountry());
 
 
@@ -119,7 +165,7 @@ public class SearchLocationActivity extends Activity {
                 editor.putString("cityName", city.getName());
 
                 //Get Long Country Name
-                Locale loc = new Locale("",city.getCountry());
+                Locale loc = new Locale("", city.getCountry());
                 editor.putString("country", loc.getDisplayCountry());
 
                 cityArray.put(cityJson);
@@ -127,6 +173,28 @@ public class SearchLocationActivity extends Activity {
 
                 editor.putString("cities", cityArray.toString());
                 editor.commit();
+
+                NavUtils.navigateUpFromSameTask(SearchLocationActivity.this);
+
+                }
+                else {
+
+
+                    new AlertDialog.Builder(SearchLocationActivity.this)
+                            .setMessage("Please select another city.\n"+city.getName()+" already exist")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // continue with delete
+                                    //  locations.remove(position);
+
+
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+
+
                 Log.d("TAMZ", "City Name: " + city.getName());
 
 
@@ -156,15 +224,14 @@ public class SearchLocationActivity extends Activity {
                         .build();
 
 
-
                 try {
                     URL url = new URL(builtUri.toString());
-                    Log.i("TAMZ","URL in search Activity : "+url.toString());
+                    Log.i("TAMZ", "URL in search Activity : " + url.toString());
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
 
-                NavUtils.navigateUpFromSameTask(SearchLocationActivity.this);
+               // NavUtils.navigateUpFromSameTask(SearchLocationActivity.this);
             }
         });
 
@@ -194,8 +261,7 @@ public class SearchLocationActivity extends Activity {
                             bar.setVisibility(View.GONE);
                         }
                     });
-                }
-                catch(LocationProviderNotFoundException lpnfe) {
+                } catch (LocationProviderNotFoundException lpnfe) {
 
                 }
             }

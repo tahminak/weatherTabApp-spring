@@ -22,20 +22,22 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.android.tamzeveloper.myweather.data.WeatherContract;
-import com.android.tamzeveloper.myweather.sync.MyWeatherSyncAdapter;
+import com.android.tamzeveloper.myweather.sync.WeatherTabsSyncAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
-
 /**
- * A placeholder fragment containing a simple view.
+ * Created by Tahmina Khan
+ */
+/**
+ * A placeholder fragment containing a simple view for the tabs.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
    private ForecastAdapter mForecastAdapter;
- //  private ArrayAdapter<String> mForecastAdapter;
+
 
     private ListView mListView;
     private int mPosition = ListView.INVALID_POSITION;
@@ -51,7 +53,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
 
     private boolean mUseTodayLayout;
-// static int position;
+
     private String[] locations={"toronto","dhaka","atlanta"};
     private JSONArray cityArray;
     private int position;
@@ -104,21 +106,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
-        //View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-       // mForecastAdapter = new ForecastAdapter(getActivity(),null, 0);
-//
-//        mForecastAdapter =
-//                new ArrayAdapter<String>(
-//                        getActivity(), // The current context (this activity)
-//                        R.layout.list_item_forecast, // The name of the layout ID.
-//                        R.id.list_item_forecast_textview, // The ID of the textview to populate.
-//                        new ArrayList<String>());
-//
-//        mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
-//        mListView.setAdapter(mForecastAdapter);
-
-       // String locationSetting = Utility.getPreferredLocation(getActivity());
 
         String locationSetting = "toronto";
 
@@ -134,43 +122,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         Log.d(LOG_TAG,"The saved cities in Fragement are "+cityArray.toString());
 
-
-        // We'll call our MainActivity
-      /*  mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-                // if it cannot seek to that position.
-                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-                if (cursor != null) {
-                    String locationSetting = Utility.getPreferredLocation(getActivity());
-                    ((Callback) getActivity())
-                            .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
-                            ));
-                }
-                mPosition = position;
-
-            }
-        });*/
-//
-//        if(savedInstanceState!=null && savedInstanceState.containsKey(SELECTED_KEY)){
-//            mPosition=savedInstanceState.getInt(SELECTED_KEY);
-//
-//        }
-
-        // Sort order:  Ascending, by date.
-//        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-//      Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-//            locationSetting, System.currentTimeMillis());
-////currentTimeMillis
-//        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
-//                null, null, null, sortOrder);
-
-        // The CursorAdapter will take data from our cursor and populate the ListView
-        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
-        // up with an empty list the first time we run.
 
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
@@ -232,10 +183,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
 
 
-      //  String locationSetting="toronto";
-                // Sort order:  Ascending, by date.
-        // cities=getActivity().getResources().getStringArray(R.array.locations);
-        //String locationSetting=locations[position];
 
         String locationSetting= null;
         try {
@@ -250,7 +197,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
                         locationSetting, System.currentTimeMillis());
 
-      //  Log.d(LOG_TAG,CLASS_TAG+ weatherForLocationUri.toString());
 
                 return new CursorLoader(
                         getActivity(),   // Parent activity context
@@ -266,12 +212,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
 
 
-     //   Log.d(LOG_TAG,"On Finish Loader : ");
+
 
         if(mForecastAdapter!=null && cursor!=null) {
             mForecastAdapter.swapCursor(cursor);
 
-           // Log.d(LOG_TAG, "Adapter is NOT null "+cursorLoader.getId());
 
         }
         else
@@ -294,8 +239,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onCreate(Bundle bundle){
 
         super.onCreate(bundle);
-       // setHasOptionsMenu(true);
-        //updateWeather();
 
         Log.d(LOG_TAG,CLASS_TAG +"On Create() ");
     }
@@ -303,9 +246,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     public void setUseTodayLayout(boolean useTodayLayout) {
         mUseTodayLayout = useTodayLayout;
-//        if (mForecastAdapter != null) {
-//            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
-//        }
+
     }
 
     @Override
@@ -348,17 +289,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     public void updateWeather(){
 
-       // Log.d("TAMZ","On Update Weather Forcast Fragement "+ WeatherContract.WeatherEntry.CONTENT_URI.toString());
 
-      MyWeatherSyncAdapter.syncImmediately(getActivity());
-
-
-//       FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String location = prefs.getString(getString(R.string.pref_location_key),
-//                getString(R.string.pref_location_default));
-//        weatherTask.execute("toronto");
-
+      WeatherTabsSyncAdapter.syncImmediately(getActivity());
 
     }
 
@@ -369,11 +301,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         Bundle args=new Bundle();
         args.putInt("position",position);
 
-       //args.putString("location",MainActivity.locations[position]);
-        fragment.setArguments(args);
-       // Log.d("TAMZ","Location is : "+MainActivity.locations[position]);
 
-        //ForecastFragment.position =position;
+        fragment.setArguments(args);
 
         return  fragment;
     }

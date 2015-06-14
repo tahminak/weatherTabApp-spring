@@ -12,7 +12,14 @@ import com.survivingwithandroid.weather.lib.model.City;
 import java.util.List;
 
 /**
- * Created by tahmina on 15-05-08.
+ * Created by Tahmina Khan
+ */
+
+/*
+
+    Adapter class to populate the weather data based on city
+
+
  */
 public class CityAdapter extends ArrayAdapter<City> {
 

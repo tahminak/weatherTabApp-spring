@@ -40,7 +40,7 @@ import java.util.Vector;
 /**
  * Created by tahmina on 15-04-23.
  */
-public class MyWeatherSyncAdapter extends AbstractThreadedSyncAdapter {
+public class WeatherTabsSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private final String LOG_TAG= "TAMZ";
 
@@ -57,7 +57,7 @@ public class MyWeatherSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private Context mContext;
 
-    public MyWeatherSyncAdapter(Context context, boolean autoInitialize) {
+    public WeatherTabsSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext=context;
     }
@@ -79,12 +79,27 @@ public class MyWeatherSyncAdapter extends AbstractThreadedSyncAdapter {
 
         SharedPreferences preferences=mContext.getSharedPreferences("locations", Context.MODE_PRIVATE);
 
-        Log.d(LOG_TAG, "City names in Syncg Adapter : " +preferences.getString("citynames",""));
+        JSONArray cityArray= null;
+        try {
+            cityArray = new JSONArray(preferences.getString("citynames",""));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        Log.d(LOG_TAG, "City names in Syncg Adapter : " +cityArray.toString());
         String locations[]={"toronto","dhaka","atlanta"};
 
-        for(int i=0;i<locations.length;i++) {
+        for(int i=0;i<cityArray.length();i++) {
 
-            String locationQuery = locations[i];
+            //City city=new
+
+            String locationQuery = null;
+            try {
+                locationQuery = cityArray.getJSONObject(i).getString("city").toLowerCase();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
@@ -492,7 +507,7 @@ public class MyWeatherSyncAdapter extends AbstractThreadedSyncAdapter {
         /*
          * Since we've created an account
          */
-        MyWeatherSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+        WeatherTabsSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
 
         /*
          * Without calling setSyncAutomatically, our periodic sync will not be enabled.

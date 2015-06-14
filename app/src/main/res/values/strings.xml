@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
-    <string name="app_name">My Weather</string>
+    <string name="app_name">Weather Tabs</string>
 
     <string name="hello_world">Hello My Weather world!</string>
     <string name="action_settings">Settings</string>
@@ -10,7 +10,7 @@
     <string name="log_cat">TAMZ</string>
 
     <string name="sync_account_type">tamzeveloper.com</string>
-    <string name="content_authority">com.android.tamzeveloper.myweather.app</string>
+    <string name="content_authority">com.android.tamzeveloper.weathertabs.app</string>
 
     <!-- Menu label to fetch updated weather info from the server -->
     <string name="action_refresh" translable="false" >Refresh</string>

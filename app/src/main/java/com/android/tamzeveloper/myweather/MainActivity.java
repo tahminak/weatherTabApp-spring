@@ -25,7 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.android.tamzeveloper.myweather.sync.MyWeatherSyncAdapter;
+import com.android.tamzeveloper.myweather.sync.WeatherTabsSyncAdapter;
 import com.android.tamzeveloper.myweather.tabs.SlidingTabLayout;
 import com.survivingwithandroid.weather.lib.model.City;
 
@@ -45,7 +45,7 @@ import it.neokree.materialtabs.MaterialTabListener;
 
 public class MainActivity extends ActionBarActivity implements MaterialTabListener{
 
-    private String LOG_CAT= "TAMZ";
+    private String LOG_TAG = "TAMZ";
 
 
 
@@ -57,10 +57,6 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     private SlidingTabLayout mTabsReg;
 
 
-   //private String[] locationsTabs ={"toronto","dhaka","atlanta"};
-
-
-    //Navigation Drawer
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
 
@@ -82,19 +78,16 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     private City currentLocation;
     private List<City> locations;
     private List<City> locationsTabs;
-    JSONArray cityArray;
+    private JSONArray cityArray;
+    private JSONArray  cityNamesJsonArray;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(LOG_TAG,"In OnCreate MainActivty");
 
-
-     //   Toolbar toolbar=(Toolbar)findViewById(R.id.tool_bar);
-
-      //  setSupportActionBar(toolbar);
-       // getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         //Setup Navigation Drawer
         mDrawerList = (ListView)findViewById(R.id.navList);
@@ -106,9 +99,13 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         locations=new ArrayList<>();
         locationsTabs=new ArrayList<>();
 
+        //Get the current city using GPSTracker
         getCurrentCityAndAddLocations();
 
+        //Add navigation drawer
         addDrawerItems();
+
+        //Set up the drawer
         setupDrawer();
 
 
@@ -121,7 +118,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
 
 
-        JSONArray  cityNamesJsonArray=new JSONArray();
+        cityNamesJsonArray=new JSONArray();
 
         for(City city:locationsTabs){
             JSONObject cityJson=new JSONObject();
@@ -139,7 +136,39 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         editor.putString("citynames",cityNamesJsonArray.toString());
         editor.commit();
 
-        Log.d(LOG_CAT,"The saved cities are "+cityNamesJsonArray.toString());
+        if(cityNamesJsonArray.length()==0){
+
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Add a location")
+                    .setMessage("Do you want to add a location?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with adding new city
+
+
+                            startActivity(new Intent(MainActivity.this,SearchLocationActivity.class));
+
+
+
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Exit out to the home application if user selects cancel
+
+                            Intent intent = new Intent(Intent.ACTION_MAIN);
+                            intent.addCategory(Intent.CATEGORY_HOME);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+        }
+
+        Log.d(LOG_TAG,"The saved cities are "+cityNamesJsonArray.toString());
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -148,26 +177,9 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
-        // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-      //  getSupportActionBar().setHomeButtonEnabled(true);
-
-
-//        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.container, new ForecastFragment())
-//                    .commit();
-//        }
-
-        //Log.d(LOG_CAT, "in OnCreate of MainActiviy");
-
-
-       // cities=res.getStringArray(R.array.cities);
 
 
         Resources res = getResources();
-      //  locationsTabs =res.getStringArray(R.array.locations);
-
-
 
 
 
@@ -175,22 +187,70 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         //Set Material Tabs
        setMaterialTabs();
 
-       // LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
-       // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 10, this);
-
-        //Set Regular Tabs
-      //  setRegularTabs();
 
 
 
+       WeatherTabsSyncAdapter.initializeSyncAdapter(this);
 
-       MyWeatherSyncAdapter.initializeSyncAdapter(this);
-       // Log.d(LOG_CAT, "in OnCreate of MainActiviy after sync started" );
     }
 
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG,"In onPause in Main activity");
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, "In onStart in Main activity");
+
+        if(cityNamesJsonArray.length()<=0){
+
+            // Exit out of the application
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Add a location")
+                    .setMessage("Do you want to add a location?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with adding new city
+
+                            startActivity(new Intent(MainActivity.this,SearchLocationActivity.class));
+
+
+
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Exit out to the home application if user selects cancel
+
+                            Intent intent = new Intent(Intent.ACTION_MAIN);
+                            intent.addCategory(Intent.CATEGORY_HOME);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Log.d(LOG_TAG, "In onStart in Main activity");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "In onResume in Main activity");
+    }
 
     private void getCurrentCityAndAddLocations(){
 
@@ -213,7 +273,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
             try {
                 addresses = gcd.getFromLocation(latitude, longitude, 1);
-                Log.d(LOG_CAT, "Address Is : " + addresses);
+                Log.d(LOG_TAG, "Address Is : " + addresses.get(0));
 
                 if (addresses.size() > 0) {
                     currentLocation=new City(new City.CityBuilder());
@@ -223,11 +283,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
                     currentLocation.setCountry(addresses.get(0).getCountryName());
 
-                    locations.add(currentLocation);
-                    //add current locations for the tabs
-                    locationsTabs.add(currentLocation);
-
-                    Log.d(LOG_CAT, "Current City is: " + currentLocation.getCountry());
+                    Log.d(LOG_TAG, "Current City is: " + currentLocation.getName());
                 }
 
 
@@ -238,22 +294,18 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
 
         }else{
-            // can't get location
-            // GPS or Network is not enabled
-            // Ask user to enable GPS/network in settings
+
             gpsTracker.showSettingsAlert();
         }
 
 
+        //Get stored locations to setup tabs
         SharedPreferences sharedPref = getSharedPreferences("locations", Context.MODE_PRIVATE);
-//        String city = sharedPref.getString("cityName", "Toronto");
-//        String country = sharedPref.getString("country", "Canada");
-//        String cityID = sharedPref.getString("cityid", "id");
 
 
 
         try {
-            //  JSONObject cityJson=new JSONObject(sharedPref.getString("cityJson", "id"));
+
 
             String sharedCities=sharedPref.getString("cities",null);
 
@@ -296,8 +348,6 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
             locations.add(lastCity);
 
 
-        //    Log.d("TAMZ","Shared Prefered : "+"Number of city is "+locations.size()+" City Array : "+locations.get(0).getCountry());
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -308,68 +358,11 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     // Add drwaerItems
     private void addDrawerItems() {
 
-     // final List<City> osArray=new ArrayList<>();
-//        if (addresses.size() > 0)
-//      Log.d("TAMZ","City is : "+addresses.get(0).getLocality());
-
-/*
-
-        gpsTracker=new GPSTracker(MainActivity.this);
-
-
-
-        if(gpsTracker.canGetLocation()){
-
-            latitude = gpsTracker.getLatitude();
-            longitude = gpsTracker.getLongitude();
-            Geocoder gcd = new Geocoder(MainActivity.this, Locale.getDefault());
-
-
-            try {
-                addresses = gcd.getFromLocation(latitude, longitude, 1);
-                Log.d(LOG_CAT, "Address Is : " + addresses);
-
-                if (addresses.size() > 0) {
-
-
-
-                    osArray.add(addresses.get(0).getLocality());
-
-
-                    Log.d(LOG_CAT, "Location is: " + addresses.get(0).getCountryName());
-
-                }
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-
-        }else{
-            // can't get location
-            // GPS or Network is not enabled
-            // Ask user to enable GPS/network in settings
-            gpsTracker.showSettingsAlert();
-        }
-*/
-
-       // osArray.add("Add Location");
-
-
-       // mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
-
-//        for(City city:locations){
-//            Log.d(LOG_CAT,"City Name : "+city.getName());
-//        }
 
 
         mNavbarAdapter= new NavbarAdapter(this,locations);
-     //   mNavbarAdapter.notifyDataSetChanged();
-        mDrawerList.setAdapter(mNavbarAdapter);
 
-        //int defaultValue = getResources().getInteger(R.string.saved_high_score_default);
+        mDrawerList.setAdapter(mNavbarAdapter);
 
 
 
@@ -389,12 +382,11 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     // continue with delete
-                                  //  locations.remove(position);
+
 
 
                                     SharedPreferences sharedPref = getSharedPreferences("locations", Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
-                                //    City city = (City) parent.getItemAtPosition(pos);
 
                                     String cities= sharedPref.getString("cities",null);
                                     JSONArray cityArray=new JSONArray();
@@ -415,7 +407,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
                                 finish();
                                  startActivity(getIntent());
-                                    Log.d(LOG_CAT, "Removed City Name: " + (position-1));
+                                    Log.d(LOG_TAG, "Removed City Name: " + (position-1));
 
 
 
@@ -434,7 +426,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
 
-                   // Toast.makeText(MainActivity.this, "Time for an upgrade! Clicked item " + position, Toast.LENGTH_SHORT).show();
+
                 }
 
 
@@ -446,19 +438,12 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
 
                 }
-               // Toast.makeText(MainActivity.this, "Time for an upgrade! Clicked item " + position, Toast.LENGTH_SHORT).show();
+
             }
         });
     }
 
 
-    private void updateSharedPreference(List<City> locations){
-
-
-
-
-
-    }
 
 
     private void setupDrawer() {
@@ -487,17 +472,14 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
         mPager=(ViewPager)findViewById(R.id.pager);
 
-        //mPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
-
-
-
-
         mTabs=(MaterialTabHost)findViewById(R.id.materialTabHost);
 
 
         ViewPagerAdapter pagerAdapter=new ViewPagerAdapter(getSupportFragmentManager());
 
         mTabs=(MaterialTabHost)findViewById(R.id.materialTabHost);
+
+
         mPager.setAdapter(pagerAdapter);
 
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -532,17 +514,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private void setRegularTabs(){
 
-    /*    mPager=(ViewPager)findViewById(R.id.pager);
-        mPager.setAdapter(new ViewTabPagerAdapter(getSupportFragmentManager()));
-
-        mTabsReg = (SlidingTabLayout)findViewById(R.id.tabs);
-
-        mTabsReg.setViewPager(mPager);
-*/
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -590,7 +562,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
 
     private class ViewPagerAdapter extends FragmentStatePagerAdapter {
-   // private class ViewPagerAdapter extends FragmentPagerAdapter {
+
 
         public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -621,33 +593,4 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     }
 
 
-    /*private class ViewTabPagerAdapter extends FragmentPagerAdapter {
-
-        public ViewTabPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-
-
-            ForecastFragment forecastFragment=ForecastFragment.getInstance(position);
-
-            return forecastFragment;
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-
-
-
-            return locationsTabs[position];
-
-        }
-    }*/
 }

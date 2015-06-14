@@ -14,7 +14,7 @@ import com.survivingwithandroid.weather.lib.model.City;
 import java.util.List;
 
 /**
- * Created by tahmina on 15-05-05.
+ * Created by Tahmina Khan
  */
 public class NavbarAdapter extends BaseAdapter {
 
